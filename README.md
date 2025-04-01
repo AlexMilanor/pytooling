@@ -10,6 +10,8 @@ Try to map functions, classes and constants in the codebase.
 
 Try to parse sql queries and transform in a flowchart, or format the query for better reading.
 
+It only supports `.sql` files that has only DQL statements, withou any variable declaration.
+
 ---
 ## Requirements
 
