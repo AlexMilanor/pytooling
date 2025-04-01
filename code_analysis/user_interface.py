@@ -1,11 +1,17 @@
 import argparse
 from os import readv
 
-from code_analysis.show_files import traverse_files
-from code_analysis.show_variables import show_vars
-from code_analysis.show_functions import show_fun
-from code_analysis.show_classes import show_class
-from code_analysis.show_imports import show_imports
+from code_analysis.py_analysis import (
+    traverse_files,
+    show_vars,
+    show_fun,
+    show_class,
+    show_imports
+)
+
+from code_analysis.sql_analysis import (
+    analyze_query
+)
 
 
 def main(options):
@@ -20,19 +26,15 @@ def main(options):
         traverse_files(options.src_path, fun=show_class)
     if options.command == "show_imports":
         traverse_files(options.src_path, fun=show_imports)
+    if options.command == "analyze_sql":
+        analyze_query(options.src_path)
 
 
 def set_commands():
     main_parser = argparse.ArgumentParser(
-        prog='PyCodeAnalysis',
+        prog='Code Analysis',
         description=("CLI used for running a suite of tools to help "
-                     "understand a python codebase.")
-    )
-
-    main_parser.add_argument(
-        'src_path', 
-        type=str, 
-        help='Path of the codebase to be analyzed.'
+                     "understand a data science codebase (python and SQL).")
     )
 
 
@@ -41,6 +43,14 @@ def set_commands():
         dest="command"
     )
 
+    parse_py_analysis(subparsers)
+    parse_sql_analysis(subparsers)
+
+    return main_parser
+
+
+
+def parse_py_analysis(subparsers):
 
     parser_files = subparsers.add_parser(
         name="show_files", 
@@ -69,6 +79,32 @@ def set_commands():
         help="Show which modules are imported by which modules in the codebase."
     )
 
-    return main_parser
+
+    for parser in [parser_files, parser_var, parser_fun, parser_class, parser_import]:
+        parser.add_argument(
+        'src_path', 
+        type=str, 
+        help='Path of the codebase to be analyzed.'
+    )
 
 
+def parse_sql_analysis(subparsers):
+
+    parser = subparsers.add_parser(
+        name="analyze_sql",
+        help="Transform sql query to png flowchart."
+    )
+
+    parser.add_argument(
+        'src_path', 
+        type=str, 
+        help='Path of the codebase to be analyzed.'
+    )
+
+    parser.add_argument(
+        "--dialect",
+        type=str,
+        choices=["bigquery", "duckdb", "mysql", "postgres", "redshift", "tsql", "sqlite"],
+        default=None,
+        help="Define a SQL dialect to use."
+    )

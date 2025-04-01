@@ -1,0 +1,8 @@
+name: env_pytooling
+dependencies:
+  - python=3.12
+  - pip
+  - conda-forge::ruamel.yaml
+  - pip:
+      - sqlglot[rs]
+      - pydot
